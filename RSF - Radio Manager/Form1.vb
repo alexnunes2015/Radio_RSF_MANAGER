@@ -726,9 +726,14 @@ Public Class Form1
                                 Dim number = rand.Next(1, MusicListFiles.Count)
                                 If musicRandom.Checked Then
                                     If System.IO.Path.GetExtension(MusicListFiles(number)).ToLower() = ".wav" Or System.IO.Path.GetExtension(MusicListFiles(number)).ToLower() = ".wma" Or System.IO.Path.GetExtension(MusicListFiles(number)).ToLower() = ".mp3" Then
-                                        wmp.URL = MusicListFiles(number)
-                                        lst_Playlist.SelectedIndex = number
-                                        wmp.Ctlcontrols.play()
+                                        Try
+                                            If System.IO.File.Exists(MusicListFiles(number)) Then
+                                                wmp.URL = MusicListFiles(number)
+                                                lst_Playlist.SelectedIndex = number
+                                                wmp.Ctlcontrols.play()
+                                            End If
+                                        Catch ex As Exception
+                                        End Try
                                     End If
                                     nToPUB = nToPUB + 1
                                     currentMusic.Text = System.IO.Path.GetFileNameWithoutExtension(MusicListFiles(number))
@@ -739,8 +744,13 @@ Public Class Form1
                                 End If
                             Else
                                 If System.IO.Path.GetExtension(MusicListFiles(currentIndexMusic)).ToLower() = ".wav" Or System.IO.Path.GetExtension(MusicListFiles(currentIndexMusic)).ToLower() = ".wma" Or System.IO.Path.GetExtension(MusicListFiles(currentIndexMusic)).ToLower() = ".mp3" Then
-                                    wmp.URL = MusicListFiles(currentIndexMusic)
-                                    wmp.Ctlcontrols.play()
+                                    Try
+                                        If System.IO.File.Exists(MusicListFiles(currentIndexMusic)) Then
+                                            wmp.URL = MusicListFiles(currentIndexMusic)
+                                            wmp.Ctlcontrols.play()
+                                        End If
+                                    Catch ex As Exception
+                                    End Try
                                 End If
                                 nToPUB = nToPUB + 1
                                 currentMusic.Text = System.IO.Path.GetFileNameWithoutExtension(currentIndexMusic)
@@ -762,28 +772,31 @@ Public Class Form1
                         End If
                     Else
                         If hasPUBS.Checked Then
-                            Dim Random As New System.Random
-                            Dim Index As System.Int32 = Random.Next(0, (System.IO.Directory.GetFiles(Application.StartupPath & "\pubs\").Count - 1) + 5)
-                            Dim dirList As New ArrayList
+                            Try
+                                Dim Random As New System.Random
+                                Dim Index As System.Int32 = Random.Next(0, (System.IO.Directory.GetFiles(Application.StartupPath & "\pubs\").Count - 1) + 5)
+                                Dim dirList As New ArrayList
 
-                            For Each File In System.IO.Directory.GetFiles(Application.StartupPath & "\pubs\")
-                                dirList.Add(File)
-                            Next
+                                For Each File In System.IO.Directory.GetFiles(Application.StartupPath & "\pubs\")
+                                    dirList.Add(File)
+                                Next
 
-                            If Index >= System.IO.Directory.GetFiles(Application.StartupPath & "\pubs\").Count - 1 Then
-                                If File.Exists(My.Settings.currentPath + ".mp3") Then
-                                    wmp.URL = My.Settings.currentPath + ".mp3"
+                                If Index >= System.IO.Directory.GetFiles(Application.StartupPath & "\pubs\").Count - 1 Then
+                                    If File.Exists(My.Settings.currentPath + ".mp3") Then
+                                        wmp.URL = My.Settings.currentPath + ".mp3"
+                                    Else
+                                        wmp.URL = dirList(0)
+                                    End If
                                 Else
-                                    wmp.URL = dirList(0)
+                                    wmp.URL = dirList(Index)
                                 End If
-                            Else
-                                wmp.URL = dirList(Index)
-                            End If
-                            wmp.Ctlcontrols.play()
+                                wmp.Ctlcontrols.play()
+                            Catch ex As Exception
+                            End Try
                         End If
                         nToPUB = 0
                     End If
-                    End If
+                End If
             Else
                 wmp.settings.volume = wmp.settings.volume + 3
             End If
