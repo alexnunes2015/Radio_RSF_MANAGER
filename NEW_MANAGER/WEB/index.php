@@ -118,6 +118,8 @@
  var sayHour=false;
  var flag_progamsList=false;
  var lastMinute=-1;
+ var musicCounter=-1;
+ var listenProgram=false;
  /*localStorage.removeItem("programs"); // Apenas para apagar em DEBUG
  var programs = new Array();
  programs[0]="0|00:00|ipja|sdjoads";
@@ -215,48 +217,81 @@
    var tmpD = new Date();
    var tmpH = tmpD.getHours(); 
    var tmpM = tmpD.getMinutes();
-   if(lastHour!=tmpH){
-     sayHour=true;
-     lastHour=tmpH;
+   if(!listenProgram){
+     if(lastHour!=tmpH){
+       sayHour=true;
+       lastHour=tmpH;
+     }
    }
-   var tmpPrograms=JSON.parse(localStorage["programs"]);
-   var serverPrograms=new Array();
-   <?php
-      $plists=scandir("playlist_get/");
-      $id=0;
-      foreach($plists as $plist){
-        if($plist!="." and $plist!=".." and $plist!="get.php"){
-          echo 'serverPrograms['.$id.']="'.$plist.'";';
-          $id++;
+   if(musicCounter==2){
+     musicCounter=0;
+     var xhttpa = new XMLHttpRequest();
+      xhttpa.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+         // Typical action to be performed when the document is ready:
+         document.getElementById("rsf_player_1").src = "pubs/"+ this.responseText;
         }
-      }
-   ?>
-   for(var i=0;i<tmpPrograms.length;i++){
-    var tmpString=tmpPrograms[i].split("|");
-    var tmpHour=tmpString[1].split(":");
-    if((tmpHour[0]==tmpH) && (tmpHour[1]==tmpM) && (lastMinute!=tmpM)){
-      if(tmpString[1]!="Variada"){
-        if(serverPrograms.indexOf(tmpString[2]) > -1){
-          current_PlayList=tmpString[2];
+      };
+      xhttpa.open("GET", "pubs/get.php", true);
+      xhttpa.send();   
+   }else{
+     var tmpPrograms=JSON.parse(localStorage["programs"]);
+     var serverPrograms=new Array();
+     <?php
+        $plists=scandir("playlist_get/");
+        $id=0;
+        foreach($plists as $plist){
+          if($plist!="." and $plist!=".." and $plist!="get.php"){
+            echo 'serverPrograms['.$id.']="'.$plist.'";';
+            $id++;
+          }
         }
-      }else{
-        current_PlayList="";
+     ?>
+     for(var i=0;i<tmpPrograms.length;i++){
+      var tmpString=tmpPrograms[i].split("|");
+      var tmpHour=tmpString[1].split(":");
+      var playInThisDay=false; 
+      if(tmpString[3]=="fimdesemana" && ([0,6].indexOf(new Date().getDay()) != -1)==false){
+        playInThisDay=true;
+      } 
+      if(tmpString[3]=="nasemana" && ([0,6].indexOf(new Date().getDay()) != -1)==true){
+        playInThisDay=true;
+      } 
+
+      if((tmpHour[0]==tmpH) && (tmpHour[1]==tmpM) && (lastMinute!=tmpM) && playInThisDay){
+        if(tmpString[1]!="Variada"){
+          if(serverPrograms.indexOf(tmpString[2]) > -1){
+            current_PlayList=tmpString[2];
+          }else{
+            var xhttpb = new XMLHttpRequest();
+            xhttpb.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+               // Typical action to be performed when the document is ready:
+               document.getElementById("rsf_player_1").src = "programs/"+tmpString[1]+"/"+ this.responseText;
+              }
+            };
+            xhttpb.open("GET", "programs/get.php", true);
+            xhttpb.send(); 
+            listenProgram=true;
+          }
+        }else{
+          current_PlayList="";
+        }
+        if(current_Player==1){
+          getAudio("rsf_player_2"); 
+        }else{
+          getAudio("rsf_player_1"); 
+        }
+        lastMinute=tmpM;
+        current_PlayList=current_PlayList+"/";
+        break;
       }
-      if(current_Player==1){
-        getAudio("rsf_player_2"); 
-        alert("Player 2");
-      }else{
-        getAudio("rsf_player_1"); 
-        alert("Player 1");
-      }
-      lastMinute=tmpM;
-      current_PlayList=current_PlayList+"/";
-      break;
-    }
+     }
    }
  } 
  
  $("#rsf_player_1").bind('ended', function(){
+      musicCounter++;
       document.getElementById("rsf_player_2").play();
       document.getElementById("rsf_player_1").src="";
       current_Player=2;
@@ -266,9 +301,11 @@
       }else{
         getAudio("rsf_player_1");  
       }
-      getID3("rsf_player_2");      
+      getID3("rsf_player_2");   
+      listenProgram=false;
   });
   $("#rsf_player_2").bind('ended', function(){
+      musicCounter++;
       document.getElementById("rsf_player_1").play();
       document.getElementById("rsf_player_2").src="";
       current_Player=1;
@@ -279,5 +316,6 @@
         getAudio("rsf_player_2");  
       }
       getID3("rsf_player_2");
+      listenProgram=false;
   });
 </script>
