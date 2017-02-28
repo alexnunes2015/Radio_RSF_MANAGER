@@ -1,0 +1,35 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,137,54)
+  Background = Color.Black
+  Text = ("RSF Manager - Rede São Francisco")
+  { MediaView1 MediaView
+    MoveScaled(2,47,41,6)
+  }
+  { MediaView2 MediaView
+    MoveScaled(95,47,41,6)
+  }
+  { ListBox1 ListBox
+    MoveScaled(2,5,41,42)
+  }
+  { ListBox2 ListBox
+    MoveScaled(95,5,41,42)
+  }
+  { Button1 Button
+    MoveScaled(34,1,9,4)
+    Background = Color.Green
+    Text = ("Reload")
+  }
+  { Button2 Button
+    MoveScaled(127,1,9,4)
+    Background = Color.Green
+    Text = ("Reload")
+  }
+  { DirBox1 DirBox
+    MoveScaled(2,1,32,4)
+  }
+  { DirBox2 DirBox
+    MoveScaled(95,1,32,4)
+  }
+}

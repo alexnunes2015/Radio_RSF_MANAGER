@@ -1,0 +1,38 @@
+' Gambas class file
+
+
+
+Public Sub Button1_Click()
+  Dim ficheiro As String
+  ListBox1.List = Null
+  
+  For Each ficheiro In Dir(DirBox1.Value)
+    ListBox1.Add(ficheiro)
+  Next
+
+End
+
+Public Sub ListBox1_DblClick()
+  Try MediaView1.URL = DirBox1.Value & "/" & ListBox1.List[ListBox1.Index]
+  Try MediaView1.Play()
+  MediaView2.Pause()
+  
+End
+
+Public Sub Button2_Click()
+
+  Dim ficheiro As String
+  ListBox2.List = Null
+  
+  For Each ficheiro In Dir(DirBox2.Value)
+    ListBox2.Add(ficheiro)
+  Next
+
+End
+
+Public Sub ListBox2_DblClick()
+
+  Try MediaView2.URL = DirBox2.Value & "/" & ListBox2.List[ListBox2.Index]
+  Try MediaView2.Play()
+
+End
