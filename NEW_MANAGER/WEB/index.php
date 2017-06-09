@@ -87,7 +87,7 @@
                       "<tbody>";
                     for (i = 0; i < programs_list.length; i++) {
                       var tmp=programs_list[i].split("|");
-                      HTML=HTML+"<tr><td width='10px'>"+tmp[1]+"</td><td width='200px'>"+tmp[2]+"</td><td width='150px'>"+tmp[3]+"</td><td style='text-align:right;'><a href='#' onclick='remove(\""+tmp[0]+"\");'>Remover</a></td></tr>";
+                      HTML=HTML+"<tr><td width='10px'>"+tmp[1]+"</td><td width='200px'>"+tmp[2]+"</td><td width='150px'>"+tmp[3]+"</td><td style='text-align:right;'><a href='#' onclick='force(\""+tmp[0]+"\");'>Forçar</a> | <a href='#' onclick='remove(\""+tmp[0]+"\");'>Remover</a></td></tr>";
                     }
                     HTML=HTML+"</tbody>"+
                       "</table></center></div>";
@@ -120,6 +120,13 @@
  var musicCounter=-1;
  var listenProgram="";
 
+ setInterval(function(){
+	 if(document.getElementById("rsf_player_2").paused && document.getElementById("rsf_player_1").paused){
+		document.getElementById("rsf_player_1").src="RSF_PUB.mp3";
+		document.getElementById("rsf_player_1").play(); 
+		current_Player=1;
+	}
+ },9000)
 
  function Switch_Muted(){
    if(document.getElementById("rsf_player_1").muted){
@@ -169,7 +176,6 @@
 	}
  }
 
-
  function addProgram(){
    var newprograms = new Array();
    var newIndex=0;
@@ -180,11 +186,55 @@
       newprograms[newIndex]=newIndex+"|"+tmpString[1]+"|"+tmpString[2]+"|"+tmpString[3];
       newIndex++;
      }
-   }catch(e){}   newprograms[newIndex]=newIndex+"|"+document.getElementById("horas").value+":"+document.getElementById("Minutos").value+"|"+document.getElementById("path").value+"|"+document.getElementById("dia_semana").value;
+   }catch(e){}   
+   newprograms[newIndex]=newIndex+"|"+document.getElementById("horas").value+":"+document.getElementById("Minutos").value+"|"+document.getElementById("path").value+"|"+document.getElementById("dia_semana").value;
    localStorage["programs"]=JSON.stringify(newprograms);
    loadList();
  }
 
+ function force(id){
+	 var currentTMP="";
+	 var tmpPrograms=JSON.parse(localStorage["programs"]);
+	 for(var i=0;i<tmpPrograms.length;i++){
+	   var tmpString=tmpPrograms[i].split("|");
+	   if(tmpString[0]==id){
+		 currentTMP=tmpString[2];
+	   }
+	 }
+	 //Check if is list
+	 var isList
+	 var serverPrograms=new Array();
+     <?php
+        $plists=scandir("playlist_get/");
+        $id=0;
+        foreach($plists as $plist){
+          if($plist!="." and $plist!=".." and $plist!="get.php"){
+            echo 'serverPrograms['.$id.']="'.$plist.'";';
+            $id++;
+          }
+        }
+     ?>
+	 ////////////////////
+	 if(serverPrograms.indexOf(currentTMP) > -1){
+		current_PlayList=currentTMP+"/";
+	  }else{
+		try{
+			var xhttpb = new XMLHttpRequest();
+			xhttpb.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+			   // Typical action to be performed when the document is ready:
+				listenProgram="programs/"+currentTMP+"/"+ this.responseText;
+			  }
+			};
+			xhttpb.open("GET", "programs/"+currentTMP+"/get.php", true);
+			xhttpb.send();
+		}catch(err){
+				
+		}
+	  }
+	  alert("Evento '"+currentTMP+"' forçado com exito");
+}
+ 
  function remove(id){
    if(confirm("Tem a certeza que pertende apagar este evento?")){
      var newprograms = new Array();
@@ -225,27 +275,7 @@
    var tmpD = new Date();
    var tmpH = tmpD.getHours();
    var tmpM = tmpD.getMinutes();
-   
-   if((document.getElementById("rsf_player_1").paused && document.getElementById("rsf_player_2").paused) && (document.getElementById("rsf_player_1").src!="http://rsf.ddns.net:8000/live")){
-	  try{
-		  musicCounter++;
-		  console.log("Counter="+musicCounter+" CurrentPlayer="+current_Player+" P1="+ocument.getElementById("rsf_player_1").src+" P2"+ocument.getElementById("rsf_player_2").src);
-		  if(current_Player==1){
-			  current_Player=2;
-			  document.getElementById("rsf_player_2").src="";
-			  getAudio("rsf_player_1");
-			  getID3("rsf_player_2");
-			  document.getElementById("rsf_player_2").play();
-			}else{
-			  current_Player=1;
-			  document.getElementById("rsf_player_1").src="";
-			  getAudio("rsf_player_2");
-			  getID3("rsf_player_1");
-			  document.getElementById("rsf_player_1").play();
-			}
-	  }catch(err){}
-	}
-
+ 
    if(listenProgram==""){
      if(lastHour!=tmpH){
        sayHour=true;
@@ -323,6 +353,7 @@
      }
    }
  }
+
 
  $("#rsf_player_1").bind('ended', function(){
 	try{
