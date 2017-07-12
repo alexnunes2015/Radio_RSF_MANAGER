@@ -119,14 +119,16 @@
  var lastMinute=-1;
  var musicCounter=-1;
  var listenProgram="";
+ var listenProgramIntro="";
 
  setInterval(function(){
 	 if(document.getElementById("rsf_player_2").paused && document.getElementById("rsf_player_1").paused){
 		document.getElementById("rsf_player_1").src="RSF_PUB.mp3";
 		document.getElementById("rsf_player_1").play(); 
-		current_Player=1;
+		musicCounter=1;
+		current_Player=2;
 	}
- },9000)
+ },900)
 
  function Switch_Muted(){
    if(document.getElementById("rsf_player_1").muted){
@@ -222,7 +224,7 @@
 			var xhttpb = new XMLHttpRequest();
 			xhttpb.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-			   // Typical action to be performed when the document is ready:
+				listenProgramIntro="programs/"+currentTMP+"/intro.mp3";
 				listenProgram="programs/"+currentTMP+"/"+ this.responseText;
 			  }
 			};
@@ -271,6 +273,11 @@
    setInterval(Manager,900);
   }
 
+
+ function getRandom(min, max) {
+    return Math.random() * (max - min) + min;
+ }
+
  function Manager(){
    var tmpD = new Date();
    var tmpH = tmpD.getHours();
@@ -284,11 +291,17 @@
    }
    if(musicCounter==2){
      musicCounter=0;
-     try{
+     if(getRandom(1,5)==3){
+		 if(current_Player==1){
+			document.getElementById("rsf_player_2").src = "playlist_get/"+current_PlayList+"\intro.mp3";
+		  }else{
+			document.getElementById("rsf_player_1").src = "playlist_get/"+current_PlayList+"\intro.mp3";
+		  }
+	 }else{
+		try{
 		 var xhttpa = new XMLHttpRequest();
 		  xhttpa.onreadystatechange = function() {
 		  if (this.readyState == 4 && this.status == 200) {
-			 // Typical action to be performed when the document is ready:
 			 if(current_Player==1){
 				document.getElementById("rsf_player_2").src = "pubs/"+ this.responseText;
 			  }else{
@@ -299,7 +312,8 @@
 		  xhttpa.open("GET", "pubs/get.php", true);
 		  xhttpa.send();
       }catch(err){
-	  }
+	  } 
+     }
    }else{
      var tmpPrograms=JSON.parse(localStorage['programs']);
      var serverPrograms=new Array();
@@ -331,7 +345,7 @@
 				var xhttpb = new XMLHttpRequest();
 				xhttpb.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {
-				   // Typical action to be performed when the document is ready:
+					listenProgramIntro="programs/"+tmpString[2]+"/intro.mp3";
 					listenProgram="programs/"+tmpString[2]+"/"+ this.responseText;
 				  }
 				};
@@ -372,10 +386,16 @@
 		  }
 		  getID3("rsf_player_2");
 	  }else{
-		  document.getElementById("rsf_player_2").src=listenProgram;
-		  document.getElementById("rsf_player_2").play();
+		  if(listenProgramIntro!=""){
+			  document.getElementById("rsf_player_2").src=listenProgramIntro;
+			  document.getElementById("rsf_player_2").play();
+			  listenProgramIntro="";
+		  }else{
+			  document.getElementById("rsf_player_2").src=listenProgram;
+			  document.getElementById("rsf_player_2").play();
+			  listenProgram="";
+		  }
 	  }
-      listenProgram="";
      }catch(err){}
   });
   $("#rsf_player_2").bind('ended', function(){
@@ -395,10 +415,16 @@
 		  }
 		  getID3("rsf_player_2");
       }else{
-		  document.getElementById("rsf_player_1").src=listenProgram;
-		  document.getElementById("rsf_player_1").play();
+		  if(listenProgramIntro!=""){
+			  document.getElementById("rsf_player_1").src=listenProgramIntro;
+			  document.getElementById("rsf_player_1").play();
+			  listenProgramIntro="";
+		  }else{
+			  document.getElementById("rsf_player_1").src=listenProgram;
+			  document.getElementById("rsf_player_1").play();
+			  listenProgram="";
+		  }
 	  }
-      listenProgram="";
      }catch(err){}
   });
 </script>
