@@ -18,7 +18,7 @@
         <img src="Images/visualizer.gif" style="position:absolute;height:220px;width:320px;top:100px;background-color:black;color:green;">
         <marquee direction="right" id="current_Music" style="border-radius:3px;margin-left:41;z-index:3;position:absolute;width:270px;top:327px;background-color:rgba(1,1,1,0.5);color:green;">Rede São Francisco</marquee>
         <audio id="rsf_player_1" hidden>
-          <source src="http://rsf.ddns.net:8000/live">
+          <source src="http://rsf2000.ddns.net:8000/live">
         </audio>
         <audio id="rsf_player_2" hidden>
         </audio>
@@ -123,7 +123,8 @@
 
  setInterval(function(){
 	 if(document.getElementById("rsf_player_2").paused && document.getElementById("rsf_player_1").paused){
-		document.getElementById("rsf_player_1").src="RSF_PUB.mp3";
+		getAudio("rsf_player_2")		
+		document.getElementById("rsf_player_1").src="pubs/silence.mp3";
 		document.getElementById("rsf_player_1").play(); 
 		musicCounter=1;
 		current_Player=2;
@@ -143,9 +144,9 @@
  }
 
  function Switch_Stream(){
-   if(document.getElementById("rsf_player_1").src!="http://rsf.ddns.net:8000/live"){
+   if(document.getElementById("rsf_player_1").src!="http://rsf2000.ddns.net:8000/live"){
       document.getElementById("rsf_player_1").pause();
-      document.getElementById("rsf_player_1").src="http://rsf.ddns.net:8000/live";
+      document.getElementById("rsf_player_1").src="http://rsf2000.ddns.net:8000/live";
       document.getElementById("rsf_player_1").play();
       document.getElementById("rsf_player_2").pause();
       document.getElementById("stream_btn").src="Images/direct.png";
@@ -267,7 +268,7 @@
  }
 
  function OnStart(){
-   document.getElementById("rsf_player_1").src="http://rsf.ddns.net:8000/live";
+   document.getElementById("rsf_player_1").src="http://rsf2000.ddns.net:8000/live";
    document.getElementById("rsf_player_1").play();
    loadList();
    setInterval(Manager,900);
@@ -289,9 +290,9 @@
        lastHour=tmpH;
      }
    }
-   if(musicCounter==2){
+   if(musicCounter==4){
      musicCounter=0;
-     if(getRandom(1,5)==3){
+     if(getRandom(1,2)==2){
 		 if(current_Player==1){
 			document.getElementById("rsf_player_2").src = "playlist_get/"+current_PlayList+"\intro.mp3";
 		  }else{
