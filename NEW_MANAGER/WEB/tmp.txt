@@ -1,6 +1,0 @@
-try{
-     var programs = JSON.parse(localStorage["programs"]);
-   }catch(err){
-     var programs = new Array();
-   }
-   localStorage["programs"] = JSON.stringify(programs);
