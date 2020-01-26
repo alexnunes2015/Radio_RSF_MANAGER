@@ -93,7 +93,7 @@ while True:
         data = file.read().replace('\n', '')
         if(data!=""):
             prtsrc("RECEBENDO STREAMING de "+data+" ( ! PARA TERMINAR CTRL+C uma vez)");
-            os.system("mpg123 "+data+" > /dev/null 2>&1");
+            os.system("mpg123 "+data+" --loop -1 > /dev/null 2>&1");
             with open("STREAMING.TXT", "w") as text_file:
                 text_file.write("");
 
