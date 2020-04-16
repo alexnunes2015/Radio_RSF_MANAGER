@@ -29,12 +29,16 @@ while True:
     # GESTOR DE MUSICAS
     currentMusic=random.choice(os.listdir("playlist_get/"+currentPlayList));
     prtsrc("Playing: "+currentMusic);
+    current_file=open("CURRENT.txt", "w");
+    current_file.write("Playing: "+currentMusic[:-4].replace("_", ' '));
+    current_file.close();
     try:
         os.system("mpg123 'playlist_get/"+currentPlayList+"/"+currentMusic+"' > /dev/null 2>&1");
     except expression as identifier:
         prtsrc("ERROR PLAYING "+currentMusic);
-    musicCounter=musicCounter+1;
+	musicCounter=musicCounter+1;
 
+	
     # PUBLICIDADES
     if(musicCounter>3):
         prtsrc("PUB!!!");
@@ -93,9 +97,11 @@ while True:
         data = file.read().replace('\n', '')
         if(data!=""):
             prtsrc("RECEBENDO STREAMING de "+data+" ( ! PARA TERMINAR CTRL+C uma vez)");
+            current_file=open("CURRENT.txt", "w");
+            current_file.write("Playing: Our Program ");
+            current_file.close();
             os.system("mpg123 "+data+" --loop -1 > /dev/null 2>&1");
             with open("STREAMING.TXT", "w") as text_file:
                 text_file.write("");
 
     
-
